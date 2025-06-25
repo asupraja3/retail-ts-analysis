@@ -34,12 +34,47 @@ plt.title('Monthly Sales')
 plt.xlabel('Date')
 plt.ylabel('Sales')
 plt.savefig('images/monthly_sales.png')
+plt.close()
+
+#This groups the DataFrame df by each month (using pd.Grouper(freq='M') on the index, which is the date) and by the
+# CITY column. It then sums the SALES values for each group and resets the index to return a flat DataFrame.
+monthly_by_region = df.groupby([pd.Grouper(freq='ME'), 'CITY'])['SALES'].sum().reset_index()
+
+
+plt.figure(figsize=(12, 6))
+sns.lineplot( data = monthly_by_region, x = 'Date', y = 'SALES', hue = 'CITY', marker = 'o')
+plt.title('Monthly Sales by Region')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.savefig("images/sales_by_region.png")
+plt.close()
+
+# Plot moving average vs actual
+plt.figure(figsize=(10, 6))
+plt.plot(monthly_sales.index, monthly_sales['SALES'], label='Actual')
+plt.plot(monthly_sales.index, monthly_sales['MovingAvg_3'], label='3-Month Avg', linestyle='--')
+plt.title("Sales Trend with Moving Average")
+plt.legend()
+plt.ylabel("Sales")
+plt.savefig("images/moving_avg.png")
+plt.close()
+
+#Anomaly detection
+thredhold = monthly_sales['SALES'].mean() - 0.5 * monthly_sales['SALES'].std()
+anomalies = monthly_sales[monthly_sales['SALES'] < thredhold]
+print(anomalies)
+
+#Plot the anomalies
+plt.figure(figsize=(12, 6))
+plt.plot(monthly_sales.index, monthly_sales['SALES'], label='Actual')
+plt.scatter(anomalies.index, anomalies['SALES'], color='red', label='Anomalies')
+plt.title("Sales Anomaly Detection")
+plt.legend()
+plt.ylabel("Sales")
+plt.savefig("images/anomalies.png")
 plt.show()
 
-
-
-
-
+print("All visualizations saved to images/ folder.")
 
 
 
